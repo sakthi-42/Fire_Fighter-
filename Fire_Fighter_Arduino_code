@@ -1,0 +1,138 @@
+#include<Servo.h>
+Servo servo;
+int flame_sensor_left=3;
+int flame_sensor_right=4;
+int flame_sensor_straight=5;
+int trigger=6;
+int echo=7;
+int left_front=8;
+int left_back=10;
+int right_front=11;
+int right_back=12;
+int relay=13;
+long distance,duration;
+void forward()
+{
+   digitalWrite(left_front,LOW);
+   digitalWrite(left_back,HIGH);
+   digitalWrite(right_front,LOW);
+   digitalWrite(right_back,HIGH);
+   Serial.println("straight");
+  }
+void back()
+{  digitalWrite(left_front,HIGH);
+   digitalWrite(left_back,LOW);
+   digitalWrite(right_front,HIGH);
+   digitalWrite(right_back,LOW);
+   Serial.println("back");
+   delay(1000);
+   }
+ void right()
+ {
+   digitalWrite(left_front,HIGH);
+   digitalWrite(left_back,LOW);
+   digitalWrite(right_front,LOW);
+   digitalWrite(right_back,LOW);
+   Serial.println("right");
+   delay(1000);
+  }
+ void left(){
+   digitalWrite(left_front,LOW);
+   digitalWrite(left_back,LOW);
+   digitalWrite(right_front,HIGH);
+   digitalWrite(right_back,LOW);
+   delay(1000);
+   Serial.println("left");
+  }
+ void Stop()
+ {
+   digitalWrite(left_front,LOW);
+   digitalWrite(left_back,LOW);
+   digitalWrite(right_front,LOW);
+   digitalWrite(right_back,LOW);
+   Serial.println("stop");
+  }
+ void ultrasound()
+{
+  digitalWrite(trigger,LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigger,HIGH);
+  delayMicroseconds(20);
+  duration=pulseIn(echo,HIGH);
+  distance=duration*0.034/2;
+  } 
+ void flame()
+ {
+  int flame_right=digitalRead(flame_sensor_right);
+  int flame_left=digitalRead(flame_sensor_left);
+  int flame_straight=digitalRead(flame_sensor_straight);
+             if(flame_right==0)
+                { 
+                   Stop();
+                   servo.write(0);
+                   digitalWrite(relay,HIGH);
+                }
+             else if(flame_left==0)
+                {  
+                   Stop();
+                   servo.write(180);
+                   digitalWrite(relay,HIGH);
+                }
+             else if(flame_straight==0)
+               {    
+                   Stop();
+                   servo.write(90);
+                   digitalWrite(relay,HIGH);
+               }
+              else
+              {  
+                   forward();
+                   servo.write(90);
+                   digitalWrite(relay,LOW);
+                    
+              }
+ }
+void setup() {
+ Serial.begin(9600);
+ servo.attach(9);
+ pinMode(flame_sensor_left,INPUT);
+ pinMode(flame_sensor_right,INPUT);
+ pinMode(flame_sensor_straight,INPUT);
+ pinMode(trigger,OUTPUT);
+ pinMode(echo,INPUT);
+ pinMode(left_front,OUTPUT);
+ pinMode(left_back,OUTPUT);
+ pinMode(right_front,OUTPUT);
+ pinMode(right_back,OUTPUT);
+ pinMode(relay,OUTPUT);
+  
+
+}
+
+void loop() {
+          flame();
+          ultrasound();
+          
+          
+  if(distance<20)
+     {
+           back();
+           left();
+         while(2==2)
+           {       flame();
+                   ultrasound();
+                  
+                  
+                         if(distance<20)
+                              {
+                                   back();
+                                   right();
+                                   break;
+                               } 
+                         
+                         
+            }
+     }
+       
+
+}
